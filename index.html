@@ -751,7 +751,7 @@ body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-fo
   const TOOLS=[['QuickBooks',99,'#2CA01C'],['ServiceTitan',1850,'#1D4ED8'],['HubSpot',450,'#FF7A59'],['Google Workspace',140,'#4285F4'],['Excel',125,'#107C41'],['Calendly',80,'#006BFF'],['Mailchimp',60,'#E9C400'],['Zapier',70,'#FF4F00'],['Slack',88,'#611F69'],['DocuSign',135,'#D9A400'],['Monday.com',120,'#FF3D57'],['Squarespace',40,'#16181D']];
   const TPOS_W=[[.11,.09],[.37,.06],[.63,.1],[.89,.07],[.13,.33],[.38,.3],[.63,.34],[.87,.31],[.1,.57],[.36,.55],[.64,.58],[.9,.55]];
   const TPOS_N=[[.27,.05],[.73,.09],[.26,.16],[.72,.2],[.28,.27],[.74,.31],[.27,.38],[.73,.42],[.28,.49],[.72,.53],[.27,.6],[.73,.64]];
-  const T = {del:[.02,.075], rot:[.07,.1], exp:[.1,.14], s0:.125, sl:.119, fan:[.84,.87], col:[.905,.93], shut:[.925,.948], unrot:[.948,.962], retype:[.962,.986], tag:[.976,.998]};
+  const T = {del:[.02,.075], rot:[.07,.1], exp:[.1,.14], s0:.125, sl:.119, fan:[.84,.87], col:[.93,.95], shut:[.946,.962], unrot:[.962,.972], retype:[.972,.99], tag:[.982,.998]};
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   const $ = id => document.getElementById(id);
@@ -1087,8 +1087,8 @@ body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-fo
 
 
   // autoplay film: one scroll starts it; any scroll takes control; let go and it carries on forward after a beat
-  const STOPS=[0,...[0,1,2,3,4,5].map(i=>T.s0+T.sl*(i+0.38)),1];
-  const DUR=[0,2800,5400,4200,5200,5000,5200,6800];   // ms per stretch: intro, problem, shift, website, apps, automation, dashboard + close (~36s)
+  const STOPS=[0,...[0,1,2,3,4,5].map(i=>T.s0+T.sl*(i+0.38)),0.875,0.93,1];
+  const DUR=[0,2800,5400,4200,5200,5000,5200,4600,4600,3200];   // ... dashboard + fan, closing line hold (~4.5s), frame closes + logo retypes   // ms per stretch: intro, problem, shift, website, apps, automation, dashboard + close (~36s)
   let mode='idle',playP=0,lastT=0,expectY=null,resumeT=null,glide=null,hiddenWhilePlaying=false,startLock=false,lastWheel=0,touchLock=false,lastAbs=0,decay=0,glideOut=false,guardUntil=0,touching=false,lastDir=1,lockT=null,ldrSet=false;
   const RESUME=160;   // ms of stillness before the film carries on (going forward)
   const BACK=2400;    // after scrolling back up, give people time to look before it carries on
@@ -1101,7 +1101,7 @@ body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-fo
   // inside a scene, the move between messages is quick and the hold on each message is long
   function speedAt(pc){for(let i=1;i<STOPS.length;i++)if(pc<STOPS[i]){
       const base=(STOPS[i]-STOPS[i-1])/(reduce?60:DUR[i]);
-      if(i<2||i>=STOPS.length-1)return base;
+      if(i<2||pc>=T.s0+NS*T.sl)return base;
       const u=(((pc-T.s0)/T.sl)%1+1)%1, d=(u>=0.38&&u<0.94)?1.25:0.6;
       return base*0.964/d;}
     return 0}
