@@ -445,6 +445,16 @@ body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-fo
 .skip:hover{background:#2A2E36;border-color:#2A2E36}
 @media (max-width:720px){.skip{height:44px;padding:0 18px 0 20px;font-size:13px;bottom:calc(8px + env(safe-area-inset-bottom,0px))}}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important}}
+.bn{background:#F3F2EE;backdrop-filter:none;-webkit-backdrop-filter:none}
+.fd p,.fd li{text-wrap:pretty}.fd h2,.fd h3,.head h2{text-wrap:balance}
+.fd .end .book{height:54px;padding:0 28px;font:600 15px var(--mono);letter-spacing:.02em}
+.fd .end .mail{font-size:clamp(16px,1.5vw,20px);border-bottom-width:1px}
+.bn-l{display:inline!important}.bn-s{display:none!important}
+@media (max-width:560px){.bn-link{font-size:12px}.tx{height:72px}.fd .fr.nb{padding-top:40px;padding-bottom:40px}}
+@media (max-width:380px){.bn-logo .lw{display:none}}
+.hint{display:none!important}
+.narrow .db-k b{font-size:19px}.narrow .db-k small em{display:none}.narrow .db-k{padding:12px}
+.narrow .db-col .db-card{flex:none}.narrow .db-goal svg{width:72px;height:72px}
 /* ===== section transition: thread ===== */
 .tx{position:relative;height:96px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;--p:0}
 .t5{display:flex;flex-direction:column;align-items:center;gap:10px}
@@ -496,7 +506,7 @@ body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-fo
 
         <!-- the problem: rented tools -->
         <div class="tags" id="tags" aria-hidden="true">
-          <div class="total" id="total"><small>Monthly software spend</small><b><span id="totN">$0</span><em>/mo</em></b><p class="yr" id="totY">$0 a year, renting tools built for everyone.</p><p class="fine">Example costs for a 10-person team. Prices vary.</p></div>
+          <div class="total" id="total"><small>Monthly software spend</small><b><span id="totN">$0</span><em>/mo</em></b><p class="yr" id="totY">$0 a year, on tools built for everyone.</p><p class="fine">Example costs for a 10-person team. Prices vary.</p></div>
           <div class="one" id="one"><span class="ob" id="ob1">[</span><span class="ot" id="ot">your system<i class="cur" id="ocur"></i></span><span class="ob" id="ob2">]</span></div>
         </div>
 
@@ -561,7 +571,7 @@ body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-fo
               <div class="cp-pill"><i></i>Live tracking</div>
               <div class="cp-sheet">
                 <div class="grab"></div>
-                <div class="cp-top"><div><small id="cpLbl">Arriving at</small><b id="cpArr">8:58</b></div><span class="cp-chip" id="cpChip">4 min</span></div>
+                <div class="cp-top"><div><small id="cpLbl">Arriving at</small><b id="cpArr">9:01</b></div><span class="cp-chip" id="cpChip">4 min</span></div>
                 <p class="cp-sub" id="cpSub">Marco is 1.2 km away</p>
                 <div>
                   <div class="cp-seg"><i><b></b></i><i><b></b></i><i><b></b></i><i><b></b></i></div>
@@ -619,8 +629,8 @@ body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-fo
               <div class="db-top"><div><h6>Good morning, Anthony</h6><p>Here's October so far. Everything updates live.</p></div>
                 <div class="db-seg"><span>Week</span><span class="on">Month</span><span>Quarter</span><span>Year</span></div></div>
               <div class="db-kpis">
-                <div class="db-k"><span>Revenue</span><b id="dk0">$0</b><svg viewBox="0 0 64 30"><path class="spk" d="M2 25L12 23 22 24 32 17 42 15 52 9 62 4"/><circle cx="62" cy="4" r="2.6"/></svg><small>+18% <em>vs September</em></small></div>
-                <div class="db-k"><span>Calls answered</span><b id="dk1">0%</b><svg viewBox="0 0 64 30"><path class="spk" d="M2 21L12 22 22 19 32 10 42 5 52 4 62 4"/><circle cx="62" cy="4" r="2.6"/></svg><small>+29 pts <em>from 71%</em></small></div>
+                <div class="db-k"><span>Revenue</span><b id="dk0">$0</b><svg viewBox="0 0 64 30"><path class="spk" d="M2 25L12 23 22 24 32 17 42 15 52 9 62 4"/><circle cx="62" cy="4" r="2.6"/></svg><small>+7% <em>vs September</em></small></div>
+                <div class="db-k"><span>Calls answered</span><b id="dk1">0%</b><svg viewBox="0 0 64 30"><path class="spk" d="M2 21L12 22 22 19 32 10 42 5 52 4 62 4"/><circle cx="62" cy="4" r="2.6"/></svg><small>+27 pts <em>from 71%</em></small></div>
                 <div class="db-k"><span>Speed to lead</span><b id="dk2">0 min</b><svg viewBox="0 0 64 30"><path class="spk" d="M2 4L12 6 22 12 32 18 42 22 52 25 62 26"/><circle cx="62" cy="26" r="2.6"/></svg><small>−2h 58m <em>was 3 hours</em></small></div>
                 <div class="db-k"><span>Close rate</span><b id="dk3">0%</b><svg viewBox="0 0 64 30"><path class="spk" d="M2 23L12 21 22 22 32 16 42 14 52 11 62 7"/><circle cx="62" cy="7" r="2.6"/></svg><small>+9 pts <em>on quotes</em></small></div>
               </div>
@@ -684,19 +694,19 @@ body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-fo
       <div class="ro-h"><span>Renting</span><span></span><span>Owning, with Framed</span></div>
       <div class="ro-r"><span class="a">Built for everyone</span><span class="x" aria-hidden="true">&rarr;</span><span class="b">Built around your process</span></div>
       <div class="ro-r"><span class="a">Per-user fees, forever</span><span class="x" aria-hidden="true">&rarr;</span><span class="b">You own it</span></div>
-      <div class="ro-r"><span class="a">12 logins</span><span class="x" aria-hidden="true">&rarr;</span><span class="b">One system</span></div>
+      <div class="ro-r"><span class="a">A dozen logins</span><span class="x" aria-hidden="true">&rarr;</span><span class="b">One system</span></div>
       <div class="ro-r"><span class="a">Workarounds</span><span class="x" aria-hidden="true">&rarr;</span><span class="b">Works the way you do</span></div>
       <div class="ro-r"><span class="a">Data scattered everywhere</span><span class="x" aria-hidden="true">&rarr;</span><span class="b">One live dashboard</span></div>
     </div>
   </div></div></section>
   <div class="tx" data-next="practice" aria-hidden="true">
-    <div class="t5"><i class="t5-line"><b></b></i><span>The practice</span></div>
+    <div class="t5"><i class="t5-line"><b></b></i><span>What we build</span></div>
   </div>
   <section id="practice"><div class="fd-in"><div class="fr nb">
     <p class="tag">What we build</p>
     <div class="pcall">
       <div><h2>Nine disciplines. One frame.</h2>
-      <p class="pl">AI agents, automated workflows, websites, apps, operating systems and live dashboards, designed as one system and run by one partner.</p></div>
+      <p class="pl">From an intelligence audit to AI agents, automated workflows, websites, apps and live dashboards, all designed as one system and run by one partner.</p></div>
       <a class="pbtn" href="services.html">See what we build &rarr;</a>
     </div>
   </div></div></section>
@@ -713,7 +723,7 @@ body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-fo
       <figure class="fcard">
         <div class="fc-top"><span class="fc-mono" aria-hidden="true">JB</span><figcaption><b>Julian Breda</b><span>Founder &middot; MBA, Data Analytics &amp; Business Intelligence</span></figcaption></div>
         <blockquote>Strategy and engineering under one roof. We find where your business loses time and money in the data, then build the AI, automation and dashboards that fix it.</blockquote>
-        <p class="fc-foot">Toronto &middot; You work with the founder, directly</p>
+        <p class="fc-foot">Toronto &middot; Work with the founder</p>
       </figure>
     </div>
     <ul class="wy-promises">
@@ -730,7 +740,7 @@ body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-fo
     <p class="tag">Begin</p>
     <h2>Your competitors aren't standing still. Let's put you ahead.<i class="cur"></i></h2>
     <p>Bring us the problem. Leave with a plan. Twenty minutes, no pitch, whether you need a new website or a new way of running the business.</p>
-    <a class="book" href="https://bookings.cloud.microsoft/bookwithme/user/6c217c668b244f88904e8699baf98217@Framedsystems.com/meetingtype/_pPbWDpojkSg16EmzRsCSQ2?anonymous&amp;ismsaljsauthenabled" target="_blank" rel="noopener">Book a 20-minute call</a>
+    <a class="book" href="https://bookings.cloud.microsoft/bookwithme/user/6c217c668b244f88904e8699baf98217@Framedsystems.com/meetingtype/_pPbWDpojkSg16EmzRsCSQ2?anonymous&amp;ismsaljsauthenabled" target="_blank" rel="noopener">Book a 20-minute call &rarr;</a>
     <div class="contact"><a class="mail" href="mailto:info@framedsystems.com">info@framedsystems.com</a><a class="mail" href="tel:+14162757022">416.275.7022</a></div>
   </div></div>
   <footer class="fd-foot fd-in"><span>[ <b>framed</b>systems ]</span><span>Toronto &middot; Greater Toronto Area</span><span>&copy; 2026 Framed Systems</span></footer>
@@ -743,7 +753,7 @@ body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-fo
   const NAME = 'framedsystems';
   const SCENES = [
     {cmd:'audit --stack',            k:'01 · The problem', h:"Your business runs on a dozen tools that don't talk to each other."},
-    {cmd:'merge --into one-system',  k:'02 · The shift',   h:'What if it was one system, built exactly the way you work?'},
+    {cmd:'merge --into one-system',  k:'02 · The shift',   h:'What if it were one system, built exactly the way you work?'},
     {cmd:'open ldrservice.com',      k:'03 · Websites',         h:'A website that sells while you sleep.'},
     {cmd:'open app',                 k:'04 · Apps',        h:'Your customers want an app. Your team needs one.'},
     {cmd:'run automations',          k:'05 · AI & automation', h:'The follow-up, the booking, the invoice. Done every time. By no one.'},
@@ -754,7 +764,7 @@ body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-fo
   const TOOLS=[['QuickBooks',99,'#2CA01C'],['ServiceTitan',1850,'#111111'],['HubSpot',450,'#FF5C35'],['Google Workspace',140,'#1A73E8'],['Excel',125,'#107C41'],['Calendly',80,'#006BFF'],['Mailchimp',60,'#FFE01B'],['Zapier',70,'#FF4F00'],['Slack',88,'#4A154B'],['DocuSign',135,'#4C00FF'],['Monday.com',120,'#FF3D57'],['Squarespace',40,'#000000']];
   const TPOS_W=[[.11,.09],[.37,.06],[.63,.1],[.89,.07],[.13,.33],[.38,.3],[.63,.34],[.87,.31],[.1,.57],[.36,.55],[.64,.58],[.9,.55]];
   const TPOS_N=[[.27,.05],[.73,.09],[.26,.16],[.72,.2],[.28,.27],[.74,.31],[.27,.38],[.73,.42],[.28,.49],[.72,.53],[.27,.6],[.73,.64]];
-  const T = {del:[.02,.075], rot:[.07,.1], exp:[.1,.14], s0:.125, sl:.119, fan:[.84,.87], col:[.93,.95], shut:[.946,.962], unrot:[.962,.972], retype:[.972,.99], tag:[.982,.998]};
+  const T = {del:[.02,.075], rot:[.07,.1], exp:[.1,.14], s0:.125, sl:.119, fan:[.84,.87], col:[.926,.944], shut:[.928,.946], unrot:[.946,.956], retype:[.953,.978], tag:[.968,.995]};
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   const $ = id => document.getElementById(id);
@@ -781,7 +791,7 @@ body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-fo
     mark.style.fontSize=fs+'px';
     cur.style.width=(fs*0.12)+'px';cur.style.height=(fs*0.92)+'px';cur.style.marginLeft=(fs*0.16)+'px';
     const gx=Math.max(16,W*0.04), gy=narrow?Math.max(56,H*0.068):Math.max(30,H*0.07);
-    const gyB=narrow?Math.max(gy,60):Math.max(gy,74), fw=Math.min(W-2*gx,1240), fh=H-gy-gyB;
+    const gyB=narrow?Math.max(gy,74):Math.max(gy,74), fw=Math.min(W-2*gx,1240), fh=H-gy-gyB;
     frameRect={x:(W-fw)/2,y:gy,w:fw,h:fh};
     Object.assign(frame.style,{left:frameRect.x+'px',top:frameRect.y+'px',width:frameRect.w+'px',height:frameRect.h+'px'});
     Object.assign($('prog').style,{left:frameRect.x+'px',top:(frameRect.y+frameRect.h+7)+'px',width:frameRect.w+'px'});
@@ -897,7 +907,7 @@ body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-fo
   }
 
   // ---------- dashboard chart ----------
-  const REV=[118,121,116,129,127,138,142,151,158,166,172,184.2], TGT=[130,132,134,136,138,140,142,145,148,151,155,160];
+  const REV=[118,121,116,129,127,138,142,151,158,166,172,184.2], TGT=[130,133,136,140,144,148,153,158,165,173,184,200];
   const MON=['N','D','J','F','M','A','M','J','J','A','S','O'];
   const cx_=i=>52+i*48.5, cy_=v=>270-(v-100)*2.4;
   function buildChart(){
@@ -949,8 +959,8 @@ body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-fo
       document.querySelectorAll('.cp-labels span').forEach((s,k)=>s.classList.toggle('on',k===ph));
       const mins=Math.max(1,Math.ceil(4*(1-move))), km=(1.2*(1-move)).toFixed(1);
       const chip=$('cpChip');
-      if(ph===1){$('cpLbl').textContent='Arriving at';$('cpArr').textContent='8:58';chip.textContent=mins+' min';chip.classList.remove('ok');$('cpSub').textContent=`Marco is ${km} km away`}
-      else if(ph===2){$('cpLbl').textContent='On site since';$('cpArr').textContent='8:58';chip.textContent='Working';chip.classList.remove('ok');$('cpSub').textContent='Replacing the igniter. About 40 min.'}
+      if(ph===1){$('cpLbl').textContent='Arriving at';$('cpArr').textContent='9:01';chip.textContent=mins+' min';chip.classList.remove('ok');$('cpSub').textContent=`Marco is ${km} km away`}
+      else if(ph===2){$('cpLbl').textContent='On site since';$('cpArr').textContent='9:01';chip.textContent='Working';chip.classList.remove('ok');$('cpSub').textContent='Replacing the igniter. About 40 min.'}
       else {$('cpLbl').textContent='Completed at';$('cpArr').textContent='9:45';chip.textContent='Done';chip.classList.add('ok');$('cpSub').textContent='Photos and report sent to your email.'}
       const btn=$('cpBtn');
       if(c<0.93){btn.textContent='Pay after job';btn.className='cp-btn wait'}
@@ -985,7 +995,7 @@ body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-fo
     }
     if(i===4){
       const k=ease(clamp(c/0.55)), fmt=n=>Math.round(n).toLocaleString('en-CA');
-      $('dk0').textContent='$'+fmt(184200*k);$('dk1').textContent=Math.round(71+29*k)+'%';
+      $('dk0').textContent='$'+fmt(184200*k);$('dk1').textContent=Math.round(71+27*k)+'%';
       const mins=Math.round(180-178*k);$('dk2').textContent=mins>=60?Math.floor(mins/60)+'h '+(mins%60)+'m':mins+' min';
       $('dk3').textContent=Math.round(37+9*k)+'%';
       document.querySelectorAll('.db-k .spk').forEach(s=>s.style.strokeDashoffset=s.dataset.l*(1-k));
@@ -1010,7 +1020,8 @@ body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-fo
       sum+=TOOLS[k][1]*a;
       const x=lerp(P[k][0]*areaW,cxA,m), y=lerp(P[k][1]*areaH+(1-a)*18,cyA,m);
       el.style.opacity=a*(1-m*m);
-      el.style.transform=`translate(${x}px,${y}px) translate(-50%,-50%) scale(${(0.92+0.08*a)*(1-0.7*m)})`;
+      const hw=el.offsetWidth/2+6, xc=Math.min(areaW-hw,Math.max(hw,x));
+      el.style.transform=`translate(${xc}px,${y}px) translate(-50%,-50%) scale(${(0.92+0.08*a)*(1-0.7*m)})`;
     });
     const tv=clamp((t0-0.12)/0.1)*(1-clamp((t1-0.04)/0.12));
     totalEl.style.opacity=tv;
@@ -1032,12 +1043,12 @@ body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-fo
     const open = p<0.5 ? ease(r(p,T.exp)) : 1-ease(r(p,T.shut));
     const cx=W/2, cy=H/2;
     const arm=fs*0.42, st=fs*0.14, len=fs*1.55, gap=fs*0.36;
-    const d=textW/2+gap+arm/2, a=rot*Math.PI/2;
+    const curT=lastN>0?fs*0.28:0, d=(textW-curT)/2+gap+arm/2, a=rot*Math.PI/2;   // centre the word, the cursor sits in the right-hand gap
     const base=[{dx:-d},{dx:d}].map(o=>({x:cx+o.dx*Math.cos(a), y:cy+o.dx*Math.sin(a), len, arm, st, rot:rot*90}));
     const armO=Math.min(26,fs*0.42), stO=Math.max(4,fs*0.08);
     const opn=[{x:cx,y:frameRect.y+armO/2},{x:cx,y:frameRect.y+frameRect.h-armO/2}].map(o=>({...o,len:frameRect.w,arm:armO,st:stO,rot:90}));
     [brL,brR].forEach((el,k)=>{const b={};for(const key of ['x','y','len','arm','st','rot'])b[key]=lerp(base[k][key],opn[k][key],open);drawBracket(el,b,k===0)});
-    mark.style.transform=`translate(${cx-mark.offsetWidth/2}px,${cy-mark.offsetHeight/2}px) rotate(${rot*90}deg)`;
+    mark.style.transform=`translate(${cx-mark.offsetWidth/2+curT/2}px,${cy-mark.offsetHeight/2}px) rotate(${rot*90}deg)`;
     mark.style.opacity=clamp(1-open*3);
     hint.style.opacity=clamp(1-p*60)*(typed>=NAME.length?1:0);
     lsub.style.opacity=clamp(1-p*40)*(typed>=NAME.length?1:0);
