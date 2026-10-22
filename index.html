@@ -681,7 +681,7 @@ body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-fo
   <section><div class="fd-in"><div class="fr">
     <p class="tag">Our view</p>
     <h2>Hard work built your business. Smart systems will grow it.<i class="cur"></i></h2>
-    <div class="body"><p>From the first click on your website to the last number on your dashboard, every step designed, connected and running on intelligence.</p><p>Designed around how your business already works, and measured after launch.</p></div>
+    <div class="body"><p>From the first click on your website to the last number on your dashboard, every step designed, connected and running on intelligence.</p><p>Every piece connected, and measured after launch.</p></div>
   </div></div></section>
   <div class="tx" data-next="rent" aria-hidden="true">
     <div class="t5"><i class="t5-line"><b></b></i><span>Rent vs own</span></div>
@@ -718,7 +718,7 @@ body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-fo
       <div>
         <p class="tag">Why us</p>
         <h2>We don't guess. We measure.</h2>
-        <p class="wy-lead">Most agencies sell you tools. We engineer systems around how your business actually works, and back every decision with data.</p>
+        <p class="wy-lead">Most agencies sell you tools. We start with your data, then engineer the system that fixes what it shows.</p>
       </div>
       <figure class="fcard">
         <div class="fc-top"><span class="fc-mono" aria-hidden="true">JB</span><figcaption><b>Julian Breda</b><span>Founder &middot; MBA, Data Analytics &amp; Business Intelligence</span></figcaption></div>
@@ -839,7 +839,7 @@ body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-fo
     const q=[0,-1,1,2,3][i];                 // fan slot (ABP sits out)
     if(f>0&&q>=0){
       const cw=areaW/2,ch=areaH/2,[w,h]=sizes[i];
-      const g={x:(q%2?1:-1)*cw/2, y:(q<2?-1:1)*ch/2, z:0, rx:0, ry:0, s:Math.min(cw/w,ch/h)*0.88, o:1};
+      const g={x:(q%2?1:-1)*cw/2, y:(q<2?-1:1)*ch/2, z:0, rx:0, ry:0, s:Math.min(cw/w,ch/h)*(i===2?1.04:0.92), o:1};   // phones get a little extra so the collage is balanced
       for(const k in st)st[k]=lerp(st[k],g[k],f);
     }
     const c=ease(r(p,T.col));
