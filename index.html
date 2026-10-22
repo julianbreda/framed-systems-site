@@ -284,7 +284,10 @@ body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-fo
 .tags{position:absolute;inset:0;z-index:30;pointer-events:none}
 .tg{position:absolute;left:0;top:0;will-change:transform,opacity}
 .tg>span{display:inline-flex;align-items:center;gap:11px;padding:12px 16px 12px 14px;border-radius:13px;background:#fff;border:1px solid #E3E1DA;box-shadow:0 18px 36px -18px rgba(10,15,30,.3);white-space:nowrap;font:600 clamp(14px,1.25vw,18px) var(--sans);color:var(--ink);letter-spacing:-.01em;animation:bob 4.6s ease-in-out infinite alternate}
-.tg i{width:9px;height:9px;border-radius:3px;background:var(--c);flex:none}
+.tg i{width:28px;height:28px;border-radius:8px;background:var(--c);flex:none;display:grid;place-items:center;box-shadow:inset 0 0 0 1px rgba(0,0,0,.06)}
+.tg i svg{width:17px;height:17px;fill:none;stroke:#fff;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.tg i.lt svg{stroke:#16181D}
+.narrow-stage .tg i{width:22px;height:22px;border-radius:6px}.narrow-stage .tg i svg{width:13px;height:13px}
 .tg em{font-style:normal;font:500 clamp(12px,1vw,14px) var(--mono);color:var(--slate)}
 @keyframes bob{to{transform:translateY(-7px)}}
 .total{position:absolute;left:50%;bottom:2%;transform:translateX(-50%);text-align:center;white-space:nowrap;will-change:opacity}
@@ -666,8 +669,8 @@ body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-fo
 
 <div id="after" class="fd">
   <section><div class="fd-in"><div class="fr">
-    <p class="tag">Manifesto</p>
-    <h2>The next generation of business runs on intelligence. We build it into yours.<i class="cur"></i></h2>
+    <p class="tag">Our view</p>
+    <h2>Hard work built your business. Smart systems will grow it.<i class="cur"></i></h2>
     <div class="body"><p>From the first click on your website to the last number on your dashboard, every step designed, connected and running on intelligence.</p><p>Designed around how your business already works, and measured after launch.</p></div>
   </div></div></section>
   <div class="tx" data-next="rent" aria-hidden="true">
@@ -675,7 +678,7 @@ body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-fo
   </div>
   <section><div class="fd-in"><div class="fr nb">
     <p class="tag">Rent vs own</p>
-    <h2>Rent it, and you work its way. Own it, and it works yours.</h2>
+    <h2>Built for your business. Not for everyone else's.</h2>
     <p class="ro-lead">Off-the-shelf software charges you per seat, splits your data across a dozen logins and makes your team work around it. We build one system around how your business already runs, and it belongs to you.</p>
     <div class="ro">
       <div class="ro-h"><span>Renting</span><span></span><span>Owning, with Framed</span></div>
@@ -748,7 +751,7 @@ body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-fo
     {cmd:'status',                   k:'Framed Systems',   h:'Stop renting software built for everyone. Own the one built for you.'},
   ];
   const NS=6, WS=[2,-1,3,4,5];       // number of scenes; scene each window belongs to
-  const TOOLS=[['QuickBooks',99,'#2CA01C'],['ServiceTitan',1850,'#1D4ED8'],['HubSpot',450,'#FF7A59'],['Google Workspace',140,'#4285F4'],['Excel',125,'#107C41'],['Calendly',80,'#006BFF'],['Mailchimp',60,'#E9C400'],['Zapier',70,'#FF4F00'],['Slack',88,'#611F69'],['DocuSign',135,'#D9A400'],['Monday.com',120,'#FF3D57'],['Squarespace',40,'#16181D']];
+  const TOOLS=[['QuickBooks',99,'#2CA01C'],['ServiceTitan',1850,'#111111'],['HubSpot',450,'#FF5C35'],['Google Workspace',140,'#1A73E8'],['Excel',125,'#107C41'],['Calendly',80,'#006BFF'],['Mailchimp',60,'#FFE01B'],['Zapier',70,'#FF4F00'],['Slack',88,'#4A154B'],['DocuSign',135,'#4C00FF'],['Monday.com',120,'#FF3D57'],['Squarespace',40,'#000000']];
   const TPOS_W=[[.11,.09],[.37,.06],[.63,.1],[.89,.07],[.13,.33],[.38,.3],[.63,.34],[.87,.31],[.1,.57],[.36,.55],[.64,.58],[.9,.55]];
   const TPOS_N=[[.27,.05],[.73,.09],[.26,.16],[.72,.2],[.28,.27],[.74,.31],[.27,.38],[.73,.42],[.28,.49],[.72,.53],[.27,.6],[.73,.64]];
   const T = {del:[.02,.075], rot:[.07,.1], exp:[.1,.14], s0:.125, sl:.119, fan:[.84,.87], col:[.93,.95], shut:[.946,.962], unrot:[.962,.972], retype:[.972,.99], tag:[.982,.998]};
@@ -759,7 +762,8 @@ body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-fo
         tag=$('tag'), hint=$('hint'), lsub=$('lsub'), frame=$('frame'), area=$('area'), cmdTxt=$('cmdTxt'), head=$('head'), headK=$('headK'), headH=$('headH');
   const wins=[0,1,2,3,4].map(i=>$('w'+i));
   const tagsEl=$('tags'), totalEl=$('total'), oneEl=$('one'), totN=$('totN'), totY=$('totY');
-  const tagEls=TOOLS.map(([n,pr,c])=>{const d=document.createElement('div');d.className='tg';d.innerHTML=`<span style="--c:${c};animation-delay:${-(n.length%5)*0.9}s"><i></i>${n}<em>$${pr.toLocaleString('en-US')}/mo</em></span>`;tagsEl.appendChild(d);return d});
+  const TI={"QuickBooks": "<path d=\"M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z\"/><path d=\"M5 17a3 3 0 0 1 3-3h11M9 8h6M9 11h4\"/>", "ServiceTitan": "<path d=\"M14.5 5.5a4 4 0 0 0-5 5L4 16l4 4 5.5-5.5a4 4 0 0 0 5-5l-2.5 2.5-2.5-.5-.5-2.5z\"/>", "HubSpot": "<circle cx=\"9\" cy=\"9\" r=\"3\"/><path d=\"M3.5 19c.6-3 2.8-4.5 5.5-4.5s4.9 1.5 5.5 4.5M16 6.5a3 3 0 0 1 0 5.5M17.5 14.6c1.7.7 2.7 2.2 3 4.4\"/>", "Google Workspace": "<rect x=\"3\" y=\"6\" width=\"12\" height=\"9\" rx=\"1.5\"/><path d=\"M3.5 6.5 9 11l5.5-4.5M17 9h4v11h-9v-3\"/>", "Excel": "<rect x=\"4\" y=\"4\" width=\"16\" height=\"16\" rx=\"2\"/><path d=\"M4 9.5h16M4 15h16M10 4v16\"/>", "Calendly": "<rect x=\"4\" y=\"5.5\" width=\"16\" height=\"14.5\" rx=\"2\"/><path d=\"M4 10h16M9 3.5v4M15 3.5v4M9 14.5l2 2 4-4\"/>", "Mailchimp": "<rect x=\"3\" y=\"5.5\" width=\"18\" height=\"13\" rx=\"2\"/><path d=\"m3.5 6.5 8.5 6.5 8.5-6.5\"/>", "Zapier": "<path d=\"M13 3 5 13.5h6L10 21l8-10.5h-6z\"/>", "Slack": "<path d=\"M4 5.5h16v10H10l-4.5 4v-4H4z\"/><path d=\"M8 10.5h8\"/>", "DocuSign": "<path d=\"M15 4.5l4.5 4.5L9 19.5H4.5V15z\"/><path d=\"M13 6.5l4.5 4.5M4 21h16\"/>", "Monday.com": "<rect x=\"3.5\" y=\"4\" width=\"17\" height=\"16\" rx=\"2\"/><path d=\"M9 4v16M15 4v16M5.5 8h1.5M11 8h2M11 12h2M17 8h1.5\"/>", "Squarespace": "<circle cx=\"12\" cy=\"12\" r=\"8.5\"/><path d=\"M3.5 12h17M12 3.5c2.5 2.6 3.5 5.4 3.5 8.5s-1 5.9-3.5 8.5M12 3.5C9.5 6.1 8.5 8.9 8.5 12s1 5.9 3.5 8.5\"/>"};
+  const tagEls=TOOLS.map(([n,pr,c])=>{const d=document.createElement('div');d.className='tg';d.innerHTML=`<span style="--c:${c};animation-delay:${-(n.length%5)*0.9}s"><i class="${['#FFE01B'].includes(c)?'lt':''}"><svg viewBox="0 0 24 24" aria-hidden="true">${TI[n]||''}</svg></i>${n}<em>$${pr.toLocaleString('en-US')}/mo</em></span>`;tagsEl.appendChild(d);return d});
   const abpImg=$('abpImg'), ABPN=60, abpFrames=[];let abpShown=0;
 
   const clamp=(v,a=0,b=1)=>Math.min(b,Math.max(a,v));
