@@ -34,7 +34,9 @@
 html{background:var(--paper)}
 body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased;overflow-x:hidden}
 .film{position:relative;height:1000vh}
-.stage{position:sticky;top:0;height:100vh;height:100dvh;overflow:hidden;
+/* stage is sized to the LARGE viewport so it never resizes when the mobile address bar shows/hides;
+   the scene is laid out inside the SMALL viewport (#svh probe) so nothing hides under the bar */
+.stage{position:sticky;top:0;height:100vh;height:100lvh;overflow:hidden;--vb:0px;
   background-color:var(--paper);
   background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
   background-size:48px 48px;background-position:center center}
@@ -453,6 +455,15 @@ body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-fo
 @media (max-width:560px){.bn-link{font-size:12px}.tx{height:72px}.fd .fr.nb{padding-top:40px;padding-bottom:40px}}
 @media (max-width:380px){.bn-logo .lw{display:none}}
 .hint{display:none!important}
+/* ===== mobile performance ===== */
+#svh{position:fixed;left:0;top:0;width:0;height:100vh;height:100svh;visibility:hidden;pointer-events:none}
+.skip{bottom:calc(var(--vb) + 10px + env(safe-area-inset-bottom,0px))}
+@media (max-width:720px){.skip{bottom:calc(var(--vb) + 8px + env(safe-area-inset-bottom,0px))}}
+/* blur inside 3D-transformed windows is very expensive on phone GPUs; solid looks the same at this size */
+.narrow-stage .cp-pill{backdrop-filter:none;-webkit-backdrop-filter:none;background:#fff}
+.br{will-change:transform}
+/* don't keep idle decorative loops running while their scene is off-screen */
+.stage.idle-tags .tg>span{animation-play-state:paused}
 .narrow .db-k b{font-size:19px}.narrow .db-k small em{display:none}.narrow .db-k{padding:12px}
 .narrow .db-col .db-card{flex:none}.narrow .db-goal svg{width:72px;height:72px}
 /* ===== section transition: thread ===== */
@@ -490,6 +501,7 @@ body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-fo
 </div></header>
 <section class="film" id="film" aria-label="Framed Systems opening">
   <h1 class="sr">Framed Systems: AI, automation, websites, apps and live dashboards built around how your business works</h1>
+  <div id="svh" aria-hidden="true"></div>
   <div class="stage" id="stage">
     <div class="br" id="brL"></div>
     <div class="br" id="brR"></div>
@@ -782,10 +794,21 @@ body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-fo
   const lerp=(a,b,t)=>a+(b-a)*t;
 
   let W,H,fs,frameRect,areaW,areaH,narrow,sizes;
-  let target=0,p=0,typed=reduce?NAME.length:0,lastN=-1,textW=0;
+  let target=0,p=0,typed=reduce?NAME.length:0,lastN=-1,textW=0,markW=0,markH=0;
+  // scroll geometry, cached so the per-frame loop never forces a layout read
+  let filmTop=0,travel=1,stageH=0,tagW=[];
+  const svhEl=$('svh');
+  function geom(){
+    stageH=stage.clientHeight;
+    filmTop=film.getBoundingClientRect().top+scrollY;
+    travel=Math.max(1,film.offsetHeight-stageH);
+  }
 
   function layout(){
-    W=stage.clientWidth;H=stage.clientHeight;
+    geom();
+    // lay the scene out in the small (address-bar-visible) viewport: stable while scrolling, never hidden
+    W=stage.clientWidth;H=Math.min(stageH,svhEl.offsetHeight||innerHeight);
+    stage.style.setProperty('--vb',(stageH-H)+'px');
     narrow=W<720;
     fs=clamp(W*0.068,26,76);
     mark.style.fontSize=fs+'px';
@@ -805,11 +828,12 @@ body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-fo
     head.style.height=headH_+'px';
     areaW=frameRect.w;areaH=frameRect.h-headH_-40-6;area.style.height=areaH+'px';
     tag.style.top=(H/2+fs*1.25)+'px';lsub.style.top=(H/2+fs*1.3)+'px';
-    lastN=-1;
+    lastN=-1;markW=mark.offsetWidth;markH=mark.offsetHeight;
+    tagW=tagEls.map(e=>e.offsetWidth);
     const vw=sizes[0][0], vh=sizes[0][1]-38, rw=narrow?vw:1440, sc=vw/rw;
-    Object.assign(ldr.style,{width:rw+'px',height:(vh/sc)+'px',transform:`scale(${sc})`});
+    Object.assign(ldr.style,{width:rw+'px',height:(vh/sc)+'px',transform:`scale(${sc})`});ldrGeo=null;ldrY=-1;
   }
-  const ldr=$('ldr');let ldrReady=false;
+  const ldr=$('ldr');let ldrReady=false,ldrGeo=null,ldrY=-1;
   ldr.addEventListener('load',()=>{try{const d=ldr.contentDocument;d.documentElement.style.scrollBehavior='auto';d.head.insertAdjacentHTML('beforeend','<style>.navphone,.mphone,.cine-skip{display:none!important}</style>');ldrReady=true;render()}catch(e){}});
 
   function setWord(n){
@@ -817,7 +841,7 @@ body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-fo
     const s=NAME.slice(0,n);
     word.innerHTML=(s.length?'<b>'+s.slice(0,6)+'</b>':'')+(s.length>6?'<span>'+s.slice(6)+'</span>':'');
     cur.style.marginLeft=(n?fs*0.16:0)+'px';
-    textW=mark.offsetWidth;
+    textW=markW=mark.offsetWidth;markH=mark.offsetHeight;
   }
 
   function drawBracket(el,b,left){
@@ -935,10 +959,11 @@ body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-fo
     if(i===0){
       if(!ldrReady)return;
       try{
-        const w=ldr.contentWindow, d=w.document, hero=d.getElementById('cineHero');
-        const end=hero?hero.offsetTop+hero.offsetHeight-w.innerHeight:d.documentElement.scrollHeight*0.5;
-        const y=c<0.82?end*(c/0.82):end+(c-0.82)/0.18*w.innerHeight*1.1;
-        if(Math.abs(w.scrollY-y)>0.5)w.scrollTo(0,y);
+        const w=ldr.contentWindow;
+        if(!ldrGeo){const d=w.document, hero=d.getElementById('cineHero');
+          ldrGeo={end:hero?hero.offsetTop+hero.offsetHeight-w.innerHeight:d.documentElement.scrollHeight*0.5,vh:w.innerHeight}}
+        const {end,vh}=ldrGeo, y=Math.round(c<0.82?end*(c/0.82):end+(c-0.82)/0.18*vh*1.1);
+        if(y!==ldrY){ldrY=y;w.scrollTo(0,y)}
       }catch(e){}
       return;
     }
@@ -1010,7 +1035,8 @@ body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-fo
 
   function renderTags(){
     const t0=sceneT(0), t1=sceneT(1), t2=sceneT(2);
-    if(t0<0||t2>0.35){tagsEl.style.visibility='hidden';return}
+    const tagsOn=!(t0<0||t2>0.35);stage.classList.toggle('idle-tags',!tagsOn);
+    if(!tagsOn){tagsEl.style.visibility='hidden';return}
     tagsEl.style.visibility='visible';
     const P=narrow?TPOS_N:TPOS_W, cxA=areaW/2, cyA=areaH*0.45;
     let sum=0;
@@ -1020,7 +1046,7 @@ body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-fo
       sum+=TOOLS[k][1]*a;
       const x=lerp(P[k][0]*areaW,cxA,m), y=lerp(P[k][1]*areaH+(1-a)*18,cyA,m);
       el.style.opacity=a*(1-m*m);
-      const hw=el.offsetWidth/2+6, xc=Math.min(areaW-hw,Math.max(hw,x));
+      const hw=tagW[k]/2+6, xc=Math.min(areaW-hw,Math.max(hw,x));
       el.style.transform=`translate(${xc}px,${y}px) translate(-50%,-50%) scale(${(0.92+0.08*a)*(1-0.7*m)})`;
     });
     const tv=clamp((t0-0.12)/0.1)*(1-clamp((t1-0.04)/0.12));
@@ -1048,7 +1074,7 @@ body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-fo
     const armO=Math.min(26,fs*0.42), stO=Math.max(4,fs*0.08);
     const opn=[{x:cx,y:frameRect.y+armO/2},{x:cx,y:frameRect.y+frameRect.h-armO/2}].map(o=>({...o,len:frameRect.w,arm:armO,st:stO,rot:90}));
     [brL,brR].forEach((el,k)=>{const b={};for(const key of ['x','y','len','arm','st','rot'])b[key]=lerp(base[k][key],opn[k][key],open);drawBracket(el,b,k===0)});
-    mark.style.transform=`translate(${cx-mark.offsetWidth/2+curT/2}px,${cy-mark.offsetHeight/2}px) rotate(${rot*90}deg)`;
+    mark.style.transform=`translate(${cx-markW/2+curT/2}px,${cy-markH/2}px) rotate(${rot*90}deg)`;
     mark.style.opacity=clamp(1-open*3);
     hint.style.opacity=clamp(1-p*60)*(typed>=NAME.length?1:0);
     lsub.style.opacity=clamp(1-p*40)*(typed>=NAME.length?1:0);
@@ -1090,7 +1116,7 @@ body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-fo
     });
   }
 
-  function measure(){const travel=film.offsetHeight-innerHeight;target=clamp(-film.getBoundingClientRect().top/travel)}
+  function measure(){target=clamp((scrollY-filmTop)/travel)}
   let raf=0,drawnTyped=-1;
   function loop(){
     tickPlay(performance.now());
@@ -1109,10 +1135,10 @@ body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-fo
   const BACK=2400;    // after scrolling back up, give people time to look before it carries on
   const wait=()=>RESUME;   // carry on the moment input stops, whichever way they scrolled
   const unlockSoon=()=>{clearTimeout(lockT);lockT=setTimeout(()=>{startLock=false;glideOut=false},420)};
-  const travelPx=()=>film.offsetHeight-innerHeight;
-  const curP=()=>clamp((scrollY-film.offsetTop)/travelPx());
-  const pinned=()=>{const r=film.getBoundingClientRect();return r.top<=2&&r.bottom>=innerHeight-2};
-  const setY=pp=>{expectY=Math.round(film.offsetTop+travelPx()*pp);scrollTo(0,film.offsetTop+travelPx()*pp)};
+  const travelPx=()=>travel;
+  const curP=()=>clamp((scrollY-filmTop)/travel);
+  const pinned=()=>{const y=scrollY;return y>=filmTop-2&&y<=filmTop+travel+2};
+  const setY=pp=>{const y=Math.round(filmTop+travel*pp);if(y===Math.round(scrollY))return;expectY=y;scrollTo(0,y)};
   // inside a scene, the move between messages is quick and the hold on each message is long
   function speedAt(pc){for(let i=1;i<STOPS.length;i++)if(pc<STOPS[i]){
       const base=(STOPS[i]-STOPS[i-1])/(reduce?60:DUR[i]);
@@ -1142,7 +1168,7 @@ body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-fo
   }
   function glideTo(pt,dur){
     cancelGlide();mode='user';clearTimeout(resumeT);typed=NAME.length;
-    const y0=scrollY,y1=film.offsetTop+travelPx()*pt,t0=performance.now(),g={raf:0};glide=g;
+    const y0=scrollY,y1=filmTop+travel*pt,t0=performance.now(),g={raf:0};glide=g;
     (function f(now){if(glide!==g)return;const k=Math.min(1,(now-t0)/dur),e=Math.sin(k*Math.PI/2);
       expectY=Math.round(y0+(y1-y0)*e);scrollTo(0,y0+(y1-y0)*e);
       if(k<1)g.raf=requestAnimationFrame(f);else{glide=null;resumeT=setTimeout(resume,wait())}})(t0);
@@ -1183,12 +1209,20 @@ body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-fo
   });
 
   document.getElementById('skip').addEventListener('click',()=>{cancelGlide();clearTimeout(resumeT);mode='ended';const a=document.getElementById('after');scrollTo(0,a.getBoundingClientRect().top+scrollY);});
-  addEventListener('resize',()=>{layout();render()});
+  let lastW=0,lastH=0,rzT=0;
+  const relayout=()=>{const w=stage.clientWidth,h=Math.min(stage.clientHeight,svhEl.offsetHeight||innerHeight);
+    if(w===lastW&&Math.abs(h-lastH)<2){geom();return}
+    lastW=w;lastH=h;layout();render()};
+  addEventListener('resize',()=>{clearTimeout(rzT);rzT=setTimeout(relayout,120)});
+  addEventListener('orientationchange',()=>{clearTimeout(rzT);rzT=setTimeout(relayout,250)});
   const start=()=>{
-    buildChart();layout();
+    buildChart();layout();lastW=W;lastH=H;
     if(WS[1]>=0)setTimeout(()=>{for(let k=0;k<ABPN;k++){const im=new Image();im.decoding='async';im.src='abp/f'+String(k).padStart(3,'0')+'.jpg';abpFrames[k]=im}},800);
     if(!reduce){const t0=performance.now()+350;(function type(now){typed=clamp(Math.floor((now-t0)/85),0,NAME.length);if(typed<NAME.length)requestAnimationFrame(type)})(performance.now())}
     loop();
+    const preload=()=>{if(!ldrSet){ldrSet=true;ldr.src=ldr.dataset.src}};
+    addEventListener('load',()=>{geom();(window.requestIdleCallback||setTimeout)(preload,{timeout:2500})},{once:true});
+    if(document.readyState==='complete'){geom();setTimeout(preload,1200)}
   };
   (document.fonts&&document.fonts.ready?document.fonts.ready:Promise.resolve()).then(start);
 })();
@@ -1196,8 +1230,10 @@ body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-fo
 <script>
 (() => {
   const bn=document.getElementById('bn'), film=document.getElementById('film');
-  const upd=()=>bn.classList.toggle('off',film.getBoundingClientRect().bottom>64);
-  addEventListener('scroll',upd,{passive:true});addEventListener('resize',upd);upd();
+  let fb=0,q=false;const geo=()=>{fb=film.getBoundingClientRect().bottom+scrollY};
+  const upd=()=>{q=false;bn.classList.toggle('off',fb-scrollY>64)};
+  addEventListener('scroll',()=>{if(!q){q=true;requestAnimationFrame(upd)}},{passive:true});
+  addEventListener('resize',()=>{geo();upd()});addEventListener('load',()=>{geo();upd()});geo();upd();
 })();
 </script>
 <script>
