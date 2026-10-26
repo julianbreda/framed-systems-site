@@ -806,7 +806,12 @@ body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-fo
     travel=Math.max(1,film.offsetHeight-stageH);
   }
 
+  let filmW=0;
   function layout(){
+    // film length is fixed in pixels, measured once per screen width: browser toolbars sliding in/out
+    // (Safari, Instagram) used to change "1000vh" by 10x the toolbar height and shove the whole page
+    const w0=stage.clientWidth;
+    if(w0!==filmW){filmW=w0;film.style.height=Math.round(10*Math.max(stage.clientHeight,innerHeight))+'px'}
     geom();
     // lay the scene out in the small (address-bar-visible) viewport: stable while scrolling, never hidden
     W=stage.clientWidth;H=Math.min(stageH,svhEl.offsetHeight||innerHeight);
