@@ -1209,13 +1209,14 @@ body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-fo
   const setTouchMode=()=>{const want=mode==='idle'||touchLock;if(want===tmBlocking)return;if(tmBlocking!==null)removeEventListener('touchmove',tmove);addEventListener('touchmove',tmove,{passive:!want});tmBlocking=want};
   setTouchMode();
   addEventListener('touchend',()=>{touching=false;ty=null;touchLock=false;setTimeout(setTouchMode,0);if(mode==='user'){clearTimeout(resumeT);resumeT=setTimeout(resume,wait())}},{passive:true});
+  addEventListener('pointerdown',e=>{if(e.pointerType==='mouse'&&e.clientX>=document.documentElement.clientWidth&&mode==='play')takeControl()});   // dragging the desktop scrollbar
   addEventListener('keydown',e=>{const up=['ArrowUp','PageUp','Home'].includes(e.key),down=['ArrowDown','PageDown',' ','End'].includes(e.key);if(up||down)onInput(down?1:-1,'key')});
   addEventListener('scroll',()=>{
     wake();
     const y=Math.round(scrollY);
     if(startLock||touchLock)return;
     if(expectY!==null&&Math.abs(y-expectY)<=3)return;           // our own movement
-    if(mode==='play'){if(glideOut||touching===false&&performance.now()<guardUntil)return;takeControl()}   // leftover inertia is ignored right after resuming
+    if(mode==='play')return;   // while playing, only real input (touch, wheel, keys, scrollbar) pauses it; phones report scroll positions late, which used to look like the visitor scrolling and caused stop-start playback
     else if(mode==='ended'&&pinned()&&curP()<0.995){mode='user';clearTimeout(resumeT);resumeT=setTimeout(resume,wait())}
     else if(mode==='user'&&!touching){clearTimeout(resumeT);resumeT=setTimeout(resume,wait())}
   },{passive:true});
