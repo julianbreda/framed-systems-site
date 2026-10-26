@@ -1157,13 +1157,14 @@ body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-fo
       const u=(((pc-T.s0)/T.sl)%1+1)%1, d=(u>=0.38&&u<0.94)?1.25:0.6;
       return base*0.964/d;}
     return 0}
+  let finished=false;
   function startPlay(){playP=curP();lastT=0;mode='play';typed=NAME.length;guardUntil=performance.now()+250}
   function tickPlay(now){
     setTouchMode();
     if(mode!=='play'){lastT=0;return}
     const dt=lastT?Math.min(64,now-lastT):16;lastT=now;
     playP=Math.min(1,playP+speedAt(playP)*dt);setY(playP);
-    if(playP>=1)mode='ended';
+    if(playP>=1){mode='ended';finished=true}
   }
   function cancelGlide(){if(glide){cancelAnimationFrame(glide.raf);glide=null}}
   function takeControl(){
@@ -1176,6 +1177,7 @@ body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-fo
     const pc=curP();
     if(!pinned()||pc>=0.999){mode=pc>=0.999?'ended':'user';return}
     if(pc<=0.0005){mode='idle';return}
+    if(lastDir<0||finished)return;   // scrolling back up, or the film already finished: the visitor is in control, never pull them forward
     startPlay();
   }
   function glideTo(pt,dur){
@@ -1187,7 +1189,7 @@ body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-fo
   }
   function onInput(dir,src){
     lastDir=dir;lastSrc=src;
-    if(mode==='idle'){if(!reduce&&dir>0&&(pinned()||curP()<=0.001)){startPlay();if(src==='wheel'){startLock=true;unlockSoon()}}return}
+    if(mode==='idle'){if(!reduce&&!finished&&dir>0&&(pinned()||curP()<=0.001)){startPlay();if(src==='wheel'){startLock=true;unlockSoon()}}return}
     takeControl();
   }
   addEventListener('wheel',e=>{
@@ -1197,7 +1199,7 @@ body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-fo
     if(startLock){if(fresh&&gap>120)startLock=false;else{e.preventDefault();return}}   // the swipe that started the film just starts it
     if(glideOut){if(fresh)glideOut=false;else{e.preventDefault();return}}           // swallow inertia once the film has taken back over
     if(abs<0.5)return;
-    if(mode==='user'&&decay>=3&&pinned()){   // fingers lifted: carry on immediately, swallowing the coast
+    if(mode==='user'&&decay>=3&&pinned()&&lastDir>0&&!finished){   // fingers lifted: carry on immediately, swallowing the coast
       clearTimeout(resumeT);glideOut=true;unlockSoon();e.preventDefault();resume();return}
     onInput(e.deltaY>0?1:-1,'wheel');
     if(startLock)e.preventDefault();
@@ -1217,7 +1219,6 @@ body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-fo
     if(startLock||touchLock)return;
     if(expectY!==null&&Math.abs(y-expectY)<=3)return;           // our own movement
     if(mode==='play')return;   // while playing, only real input (touch, wheel, keys, scrollbar) pauses it; phones report scroll positions late, which used to look like the visitor scrolling and caused stop-start playback
-    else if(mode==='ended'&&pinned()&&curP()<0.995){mode='user';clearTimeout(resumeT);resumeT=setTimeout(resume,wait())}
     else if(mode==='user'&&!touching){clearTimeout(resumeT);resumeT=setTimeout(resume,wait())}
   },{passive:true});
   document.addEventListener('visibilitychange',()=>{
@@ -1225,7 +1226,7 @@ body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-fo
     else if(hiddenWhilePlaying){hiddenWhilePlaying=false;resumeT=setTimeout(resume,600)}
   });
 
-  document.getElementById('skip').addEventListener('click',()=>{cancelGlide();clearTimeout(resumeT);mode='ended';const a=document.getElementById('after');scrollTo(0,a.getBoundingClientRect().top+scrollY);});
+  document.getElementById('skip').addEventListener('click',()=>{cancelGlide();clearTimeout(resumeT);mode='ended';finished=true;const a=document.getElementById('after');scrollTo(0,a.getBoundingClientRect().top+scrollY);});
   let lastW=0,lastH=0,rzT=0;
   const relayout=()=>{const w=stage.clientWidth,h=Math.min(stage.clientHeight,svhEl.offsetHeight||innerHeight);
     if(w===lastW&&Math.abs(h-lastH)<2){geom();return}
