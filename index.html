@@ -457,7 +457,9 @@ body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-fo
 .hint{display:none!important}
 /* ===== mobile performance ===== */
 #svh{position:fixed;left:0;top:0;width:0;height:100vh;height:100svh;visibility:hidden;pointer-events:none}
-.skip{bottom:calc(var(--vb) + 10px + env(safe-area-inset-bottom,0px))}
+.skip{bottom:calc(var(--vb) + 10px + env(safe-area-inset-bottom,0px));backdrop-filter:none;-webkit-backdrop-filter:none}
+.win.off *{animation-play-state:paused!important}
+@media (max-width:720px){.tg>span{animation:none}}
 @media (max-width:720px){.skip{bottom:calc(var(--vb) + 8px + env(safe-area-inset-bottom,0px))}}
 /* blur inside 3D-transformed windows is very expensive on phone GPUs; solid looks the same at this size */
 .narrow-stage .cp-pill{backdrop-filter:none;-webkit-backdrop-filter:none;background:#fff}
@@ -796,7 +798,7 @@ body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-fo
   let W,H,fs,frameRect,areaW,areaH,narrow,sizes;
   let target=0,p=0,typed=reduce?NAME.length:0,lastN=-1,textW=0,markW=0,markH=0;
   // scroll geometry, cached so the per-frame loop never forces a layout read
-  let filmTop=0,travel=1,stageH=0,tagW=[];
+  let filmTop=0,travel=1,stageH=0,tagW=[],lastC=[];
   const svhEl=$('svh');
   function geom(){
     stageH=stage.clientHeight;
@@ -828,13 +830,13 @@ body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-fo
     head.style.height=headH_+'px';
     areaW=frameRect.w;areaH=frameRect.h-headH_-40-6;area.style.height=areaH+'px';
     tag.style.top=(H/2+fs*1.25)+'px';lsub.style.top=(H/2+fs*1.3)+'px';
-    lastN=-1;markW=mark.offsetWidth;markH=mark.offsetHeight;
+    lastN=-1;lastC=[];markW=mark.offsetWidth;markH=mark.offsetHeight;
     tagW=tagEls.map(e=>e.offsetWidth);
     const vw=sizes[0][0], vh=sizes[0][1]-38, rw=narrow?vw:1440, sc=vw/rw;
     Object.assign(ldr.style,{width:rw+'px',height:(vh/sc)+'px',transform:`scale(${sc})`});ldrGeo=null;ldrY=-1;
   }
   const ldr=$('ldr');let ldrReady=false,ldrGeo=null,ldrY=-1;
-  ldr.addEventListener('load',()=>{try{const d=ldr.contentDocument;d.documentElement.style.scrollBehavior='auto';d.head.insertAdjacentHTML('beforeend','<style>.navphone,.mphone,.cine-skip{display:none!important}</style>');ldrReady=true;render()}catch(e){}});
+  ldr.addEventListener('load',()=>{try{const d=ldr.contentDocument;d.documentElement.style.scrollBehavior='auto';d.head.insertAdjacentHTML('beforeend','<style>.navphone,.mphone,.cine-skip{display:none!important}header.nav,header.nav.solid{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}</style>');ldrReady=true;render()}catch(e){}});
 
   function setWord(n){
     if(n===lastN)return;lastN=n;
@@ -954,7 +956,9 @@ body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-fo
   }
 
   // ---------- per-window content, driven by scroll ----------
-  const cpRoute=$('cpRoute'), cpDone=$('cpDone');let cpLen=1;
+  const cpRoute=$('cpRoute'), cpDone=$('cpDone');let cpLen=0,sigL=0;
+  const Q=sel=>[...document.querySelectorAll(sel)];
+  const cpSegs=Q('.cp-seg b'), cpLbls=Q('.cp-labels span'), tpIts=Q('.tp-it'), tpPh=Q('.tp-photos span'), rpTxP=Q('#rpTx p'), rpKvB=Q('#rpKv b'), rpWv=Q('#rpWave i'), dbSpk=Q('.db-k .spk'), dbUt=Q('.db-ut i');
   function content(i,c){
     if(i===0){
       if(!ldrReady)return;
@@ -973,15 +977,15 @@ body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-fo
       return;
     }
     if(i===2){
-      cpLen=cpRoute.getTotalLength();
+      if(!cpLen)cpLen=cpRoute.getTotalLength();
       const move=ease(clamp((c-0.04)/0.52)), l=cpLen*move;
       const a=cpRoute.getPointAtLength(l), b=cpRoute.getPointAtLength(Math.min(cpLen,l+1)), a0=cpRoute.getPointAtLength(Math.max(0,l-1));
       const ang=Math.atan2(b.y-a0.y,b.x-a0.x)*180/Math.PI+90;
       $('cpVan').setAttribute('transform',`translate(${a.x} ${a.y})`);$('cpArrow').setAttribute('transform',`rotate(${ang})`);
       cpDone.style.strokeDasharray=`${l} ${cpLen}`;
       const ph=c<0.58?1:c<0.9?2:3;
-      document.querySelectorAll('.cp-seg b').forEach((s,k)=>{s.style.transform=`scaleX(${k<ph?1:k===ph?(ph===1?move:ph===2?clamp((c-0.58)/0.32):clamp((c-0.9)/0.06)):0})`});
-      document.querySelectorAll('.cp-labels span').forEach((s,k)=>s.classList.toggle('on',k===ph));
+      cpSegs.forEach((s,k)=>{s.style.transform=`scaleX(${k<ph?1:k===ph?(ph===1?move:ph===2?clamp((c-0.58)/0.32):clamp((c-0.9)/0.06)):0})`});
+      cpLbls.forEach((s,k)=>s.classList.toggle('on',k===ph));
       const mins=Math.max(1,Math.ceil(4*(1-move))), km=(1.2*(1-move)).toFixed(1);
       const chip=$('cpChip');
       if(ph===1){$('cpLbl').textContent='Arriving at';$('cpArr').textContent='9:01';chip.textContent=mins+' min';chip.classList.remove('ok');$('cpSub').textContent=`Marco is ${km} km away`}
@@ -994,9 +998,9 @@ body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-fo
       // technician app
       const st=$('tpState');
       if(c<0.58){st.textContent='En route · '+mins+' min';st.className='tp-pri'}else if(c<0.9){st.textContent='On site';st.className='tp-pri site'}else{st.textContent='Complete';st.className='tp-pri done'}
-      document.querySelectorAll('.tp-it').forEach((it,k)=>it.classList.toggle('on',c>[0.62,0.68,0.74,0.8][k]));
-      document.querySelectorAll('.tp-photos span').forEach((s,k)=>s.classList.toggle('on',c>[0.76,0.78,0.8][k]));
-      const sig=$('sig'),SL=sig.getTotalLength();sig.style.strokeDasharray=SL;sig.style.strokeDashoffset=SL*(1-clamp((c-0.81)/0.07));
+      tpIts.forEach((it,k)=>it.classList.toggle('on',c>[0.62,0.68,0.74,0.8][k]));
+      tpPh.forEach((s,k)=>s.classList.toggle('on',c>[0.76,0.78,0.8][k]));
+      const sig=$('sig');if(!sigL){sigL=sig.getTotalLength();sig.style.strokeDasharray=sigL}const SL=sigL;sig.style.strokeDashoffset=SL*(1-clamp((c-0.81)/0.07));
       const tb=$('tpBtn');
       if(c<0.88){tb.textContent='Complete job';tb.className='tp-btn'}else if(c<0.92){tb.textContent='Complete job';tb.className='tp-btn on'}else{tb.textContent='Invoice sent ✓';tb.className='tp-btn sent'}
       return;
@@ -1012,10 +1016,10 @@ body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-fo
       const secs=Math.round(72*clamp(c/0.82));$('rpTime').textContent=Math.floor(secs/60)+':'+String(secs%60).padStart(2,'0');
       const done=c>=0.82;$('rpChip').textContent=done?'Complete':'Running';$('rpChip').classList.toggle('ok',done);
       $('flDone').textContent=done?'Completed in 1m 12s':'Running · '+Math.floor(secs/60)+':'+String(secs%60).padStart(2,'0');$('flDone').classList.toggle('ok',done);
-      document.querySelectorAll('#rpTx p').forEach((pp,k)=>pp.classList.toggle('in',c>[0.05,0.1,0.17,0.25][k]));
-      document.querySelectorAll('#rpKv b').forEach((bb,k)=>bb.classList.toggle('in',c>[0.2,0.34,0.46,0.7,0.82][k]));
+      rpTxP.forEach((pp,k)=>pp.classList.toggle('in',c>[0.05,0.1,0.17,0.25][k]));
+      rpKvB.forEach((bb,k)=>bb.classList.toggle('in',c>[0.2,0.34,0.46,0.7,0.82][k]));
       const talk=c>0.03&&c<0.3;
-      document.querySelectorAll('#rpWave i').forEach((w,k)=>w.style.height=talk?(4+Math.abs(Math.sin(c*220+k*0.9)*Math.cos(c*90+k*0.35))*24)+'px':'4px');
+      rpWv.forEach((w,k)=>w.style.height=talk?(4+Math.abs(Math.sin(c*220+k*0.9)*Math.cos(c*90+k*0.35))*24)+'px':'4px');
       return;
     }
     if(i===4){
@@ -1023,13 +1027,13 @@ body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-fo
       $('dk0').textContent='$'+fmt(184200*k);$('dk1').textContent=Math.round(71+27*k)+'%';
       const mins=Math.round(180-178*k);$('dk2').textContent=mins>=60?Math.floor(mins/60)+'h '+(mins%60)+'m':mins+' min';
       $('dk3').textContent=Math.round(37+9*k)+'%';
-      document.querySelectorAll('.db-k .spk').forEach(s=>s.style.strokeDashoffset=s.dataset.l*(1-k));
+      dbSpk.forEach(s=>s.style.strokeDashoffset=s.dataset.l*(1-k));
       const draw=ease(clamp((c-0.05)/0.6));$('dbClipR').setAttribute('width',600*draw);
       $('dbNote').setAttribute('opacity',clamp((draw-0.55)/0.1));
       $('dbEnd').setAttribute('opacity',clamp((draw-0.97)/0.03));
       $('dbRing').setAttribute('stroke-dashoffset',251.3*(1-0.92*ease(clamp((c-0.3)/0.45))));
       $('dbRingTx').textContent=Math.round(92*ease(clamp((c-0.3)/0.45)))+'%';
-      document.querySelectorAll('.db-ut i').forEach(b=>b.style.width=(b.dataset.w*ease(clamp((c-0.45)/0.4)))+'%');
+      dbUt.forEach(b=>b.style.width=(b.dataset.w*ease(clamp((c-0.45)/0.4)))+'%');
     }
   }
 
@@ -1108,11 +1112,13 @@ body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-fo
 
     wins.forEach((w,i)=>{
       const s=winState(i);
+      const on=s.o>=0.002;
+      w.style.visibility=on?'visible':'hidden';w.classList.toggle('off',!on);
+      if(!on)return;
       w.style.opacity=s.o;
-      w.style.visibility=s.o<0.002?'hidden':'visible';
       w.style.transform=`translate(-50%,-50%) translate3d(${s.x}px,${s.y}px,${s.z}px) rotateX(${s.rx}deg) rotateY(${s.ry}deg) scale(${s.s})`;
       w.style.zIndex=10+i;
-      if(WS[i]>=0)content(i,clamp((sceneT(WS[i])-0.38)/0.56));
+      if(WS[i]>=0){const c=clamp((sceneT(WS[i])-0.38)/0.56);if(c!==lastC[i]||(i===0&&ldrReady&&!lastC.ldr)){lastC[i]=c;if(i===0&&ldrReady)lastC.ldr=1;content(i,c)}}
     });
   }
 
@@ -1123,8 +1129,12 @@ body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-fo
     measure();
     const next = (reduce||glide||mode==='play') ? target : p+(target-p)*0.45;
     if(Math.abs(next-p)>0.00002||typed!==drawnTyped||raf===0){p=Math.abs(target-next)<0.00005?target:next;drawnTyped=typed;render()}
+    if(!filmVisible&&mode!=='play'&&!glide&&Math.abs(target-p)<0.00005){raf=0;sleeping=true;return}
     raf=requestAnimationFrame(loop);
   }
+  let filmVisible=true,sleeping=false;
+  const wake=()=>{if(sleeping){sleeping=false;raf=requestAnimationFrame(loop)}};
+  if('IntersectionObserver' in window)new IntersectionObserver(es=>{filmVisible=es[es.length-1].isIntersecting;if(filmVisible)wake()},{rootMargin:'200px 0px'}).observe(film);
 
 
   // autoplay film: one scroll starts it; any scroll takes control; let go and it carries on forward after a beat
@@ -1133,7 +1143,8 @@ body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-fo
   let mode='idle',playP=0,lastT=0,expectY=null,resumeT=null,glide=null,hiddenWhilePlaying=false,startLock=false,lastWheel=0,touchLock=false,lastAbs=0,decay=0,glideOut=false,guardUntil=0,touching=false,lastDir=1,lockT=null,ldrSet=false;
   const RESUME=160;   // ms of stillness before the film carries on (going forward)
   const BACK=2400;    // after scrolling back up, give people time to look before it carries on
-  const wait=()=>RESUME;   // carry on the moment input stops, whichever way they scrolled
+  let lastSrc='wheel';
+  const wait=()=>lastSrc==='touch'?650:RESUME;   // touch: let momentum scrolling settle first
   const unlockSoon=()=>{clearTimeout(lockT);lockT=setTimeout(()=>{startLock=false;glideOut=false},420)};
   const travelPx=()=>travel;
   const curP=()=>clamp((scrollY-filmTop)/travel);
@@ -1148,6 +1159,7 @@ body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-fo
     return 0}
   function startPlay(){playP=curP();lastT=0;mode='play';typed=NAME.length;guardUntil=performance.now()+250}
   function tickPlay(now){
+    setTouchMode();
     if(mode!=='play'){lastT=0;return}
     const dt=lastT?Math.min(64,now-lastT):16;lastT=now;
     playP=Math.min(1,playP+speedAt(playP)*dt);setY(playP);
@@ -1174,7 +1186,7 @@ body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-fo
       if(k<1)g.raf=requestAnimationFrame(f);else{glide=null;resumeT=setTimeout(resume,wait())}})(t0);
   }
   function onInput(dir,src){
-    lastDir=dir;
+    lastDir=dir;lastSrc=src;
     if(mode==='idle'){if(!reduce&&dir>0&&(pinned()||curP()<=0.001)){startPlay();if(src==='wheel'){startLock=true;unlockSoon()}}return}
     takeControl();
   }
@@ -1191,11 +1203,15 @@ body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-fo
     if(startLock)e.preventDefault();
   },{passive:false});
   let ty=null;
-  addEventListener('touchstart',e=>{touching=true;ty=e.touches[0].clientY;if(mode==='play')takeControl();else if(mode==='user')clearTimeout(resumeT)},{passive:true});
-  addEventListener('touchmove',e=>{if(touchLock){e.preventDefault();return}if(ty===null)return;const d=ty-e.touches[0].clientY;if(Math.abs(d)>4){const was=mode;onInput(d>0?1:-1,'touch');if(was==='idle'&&mode==='play'){touchLock=true;startLock=false;e.preventDefault()}}},{passive:false});
-  addEventListener('touchend',()=>{touching=false;ty=null;touchLock=false;if(mode==='user'){clearTimeout(resumeT);resumeT=setTimeout(resume,wait())}},{passive:true});
+  addEventListener('touchstart',e=>{touching=true;lastSrc='touch';ty=e.touches[0].clientY;if(mode==='play')takeControl();else if(mode==='user')clearTimeout(resumeT)},{passive:true});
+  const tmove=e=>{if(touchLock){if(e.cancelable)e.preventDefault();return}if(ty===null)return;const d=ty-e.touches[0].clientY;if(Math.abs(d)>4){const was=mode;onInput(d>0?1:-1,'touch');if(was==='idle'&&mode==='play'){touchLock=true;startLock=false;if(e.cancelable)e.preventDefault()}}};
+  let tmBlocking=null;
+  const setTouchMode=()=>{const want=mode==='idle'||touchLock;if(want===tmBlocking)return;if(tmBlocking!==null)removeEventListener('touchmove',tmove);addEventListener('touchmove',tmove,{passive:!want});tmBlocking=want};
+  setTouchMode();
+  addEventListener('touchend',()=>{touching=false;ty=null;touchLock=false;setTimeout(setTouchMode,0);if(mode==='user'){clearTimeout(resumeT);resumeT=setTimeout(resume,wait())}},{passive:true});
   addEventListener('keydown',e=>{const up=['ArrowUp','PageUp','Home'].includes(e.key),down=['ArrowDown','PageDown',' ','End'].includes(e.key);if(up||down)onInput(down?1:-1,'key')});
   addEventListener('scroll',()=>{
+    wake();
     const y=Math.round(scrollY);
     if(startLock||touchLock)return;
     if(expectY!==null&&Math.abs(y-expectY)<=3)return;           // our own movement
@@ -1212,7 +1228,7 @@ body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-fo
   let lastW=0,lastH=0,rzT=0;
   const relayout=()=>{const w=stage.clientWidth,h=Math.min(stage.clientHeight,svhEl.offsetHeight||innerHeight);
     if(w===lastW&&Math.abs(h-lastH)<2){geom();return}
-    lastW=w;lastH=h;layout();render()};
+    lastW=w;lastH=h;layout();render();wake()};
   addEventListener('resize',()=>{clearTimeout(rzT);rzT=setTimeout(relayout,120)});
   addEventListener('orientationchange',()=>{clearTimeout(rzT);rzT=setTimeout(relayout,250)});
   const start=()=>{
