@@ -56,6 +56,12 @@ body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-fo
 .tagline .cta:focus-visible{outline:2px solid var(--cobalt);outline-offset:4px}
 .services{display:block;margin-top:14px;font-family:var(--mono);font-size:clamp(11px,1.2vw,14px);letter-spacing:.06em;color:var(--slate)}
 .lsub{position:absolute;left:0;right:0;text-align:center;font-family:var(--mono);font-size:clamp(11px,1.2vw,14px);letter-spacing:.06em;color:var(--slate);z-index:6;opacity:0;transition:opacity .6s;padding:0 16px}
+.tour{position:absolute;z-index:6;display:flex;justify-content:space-between;gap:12px;font:500 11.5px var(--mono);letter-spacing:.06em;color:var(--slate);opacity:0;pointer-events:none;transition:opacity .3s}
+.tour #tourStep b{color:var(--ink);font-weight:600}
+.tour #tourStat::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--cobalt);margin-right:7px;vertical-align:1px}
+.tour.paused #tourStat::before{background:var(--mist)}
+@media (max-width:720px){.tour{font-size:10.5px}.tour #tourStat .lg,.tour .nm{display:none}}
+.hint{white-space:nowrap}
 .hint{position:absolute;left:50%;bottom:calc(62px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:10px;font-family:var(--mono);font-size:12px;color:var(--slate);letter-spacing:.08em;z-index:6}
 .hint i{display:block;width:1px;height:36px;background:linear-gradient(var(--slate),transparent);animation:drop 1.8s ease-in-out infinite}
 @keyframes drop{0%{transform:scaleY(0);transform-origin:top}45%{transform:scaleY(1);transform-origin:top}55%{transform:scaleY(1);transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
@@ -456,7 +462,7 @@ body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-fo
 .bn-l{display:inline!important}.bn-s{display:none!important}
 @media (max-width:560px){.bn-link{font-size:12px}.tx{height:72px}.fd .fr.nb{padding-top:40px;padding-bottom:40px}}
 @media (max-width:380px){.bn-logo .lw{display:none}}
-.hint{display:none!important}
+
 /* ===== mobile performance ===== */
 #svh{position:fixed;left:0;top:0;width:0;height:100vh;height:100svh;visibility:hidden;pointer-events:none}
 .skip{bottom:calc(var(--vb) + 10px + env(safe-area-inset-bottom,0px));backdrop-filter:none;-webkit-backdrop-filter:none}
@@ -511,10 +517,11 @@ body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-fo
     <div class="br" id="brR"></div>
     <div class="mark" id="mark"><span id="word"></span><i class="cur" id="cur"></i></div>
     <div class="tagline" id="tag">Every business runs on a frame. <strong>We build yours.</strong><span class="services">AI &middot; Automation &middot; Websites &middot; Apps &middot; Dashboards</span><a class="cta" id="cta" href="https://bookings.cloud.microsoft/book/FramedSystems2@Framedsystems.com/s/_X5hQpLS70e79msYZeBJ8A2" target="_blank" rel="noopener">Book a 20-minute call &rarr;</a></div>
-    <div class="lsub" id="lsub" aria-hidden="true">AI &middot; Automation &middot; Websites &middot; Apps &middot; Dashboards</div>
-    <div class="hint" id="hint">Scroll<i></i></div>
+    <div class="lsub" id="lsub" aria-hidden="true">Custom websites, apps, CRMs &amp; AI automation for GTA businesses</div>
+    <div class="hint" id="hint">Scroll to start the tour<i></i></div>
     <div class="prog" id="prog" aria-hidden="true"><i></i></div>
-    <button type="button" class="skip" id="skip" aria-label="Skip the intro">SKIP<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 3v10M3.5 8.5 8 13l4.5-4.5"/></svg></button>
+    <div class="tour" id="tour" aria-hidden="true"><span id="tourStep"></span><span id="tourStat"></span></div>
+    <button type="button" class="skip" id="skip" aria-label="Skip the tour">SKIP TOUR<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 3v10M3.5 8.5 8 13l4.5-4.5"/></svg></button>
 
     <div class="frame" id="frame">
       <div class="head" id="head" aria-live="off"><span class="k" id="headK"></span><h2 id="headH"></h2></div>
@@ -767,6 +774,7 @@ body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-fo
 <script>
 (() => {
   const NAME = 'framedsystems';
+  var tourAct=-1, tourVis=0;
   const SCENES = [
     {cmd:'audit --stack',            k:'01 · The problem', h:"Your business runs on a dozen tools that don't talk to each other."},
     {cmd:'merge --into one-system',  k:'02 · The shift',   h:'What if it were one system, built exactly the way you work?'},
@@ -827,6 +835,7 @@ body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-fo
     frameRect={x:(W-fw)/2,y:gy,w:fw,h:fh};
     Object.assign(frame.style,{left:frameRect.x+'px',top:frameRect.y+'px',width:frameRect.w+'px',height:frameRect.h+'px'});
     Object.assign($('prog').style,{left:frameRect.x+'px',top:(frameRect.y+frameRect.h+7)+'px',width:frameRect.w+'px'});
+    Object.assign($('tour').style,{left:frameRect.x+'px',top:(frameRect.y+frameRect.h+16)+'px',width:frameRect.w+'px'});
     sizes = narrow
       ? [[400,720],[400,600],[340,700],[400,760],[400,760]]
       : [[1080,660],[1080,660],[820,700],[1100,660],[1100,660]];
@@ -843,7 +852,7 @@ body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-fo
     Object.assign(ldr.style,{width:rw+'px',height:(vh/sc)+'px',transform:`scale(${sc})`});ldrGeo=null;ldrY=-1;
   }
   const ldr=$('ldr');let ldrReady=false,ldrGeo=null,ldrY=-1;
-  ldr.addEventListener('load',()=>{try{const d=ldr.contentDocument;d.documentElement.style.scrollBehavior='auto';d.head.insertAdjacentHTML('beforeend','<style>.navphone,.mphone,.cine-skip{display:none!important}header.nav,header.nav.solid{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}</style>');ldrReady=true;render()}catch(e){}});
+  ldr.addEventListener('load',()=>{try{const d=ldr.contentDocument;d.documentElement.style.scrollBehavior='auto';d.head.insertAdjacentHTML('beforeend','<style>.navphone,.mphone,.cine-skip,.cine-cue{display:none!important}header.nav,header.nav.solid{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}</style>');ldrReady=true;render()}catch(e){}});
 
   function setWord(n){
     if(n===lastN)return;lastN=n;
@@ -1101,6 +1110,7 @@ body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-fo
     // active scene + presentation headline
     let act=-1;for(let i=0;i<NS;i++){const t=sceneT(i);if(t>=0&&t<1)act=i}
     if(p>=T.s0+NS*T.sl)act=NS;
+    tourAct=act;tourVis=(act>=0&&act<NS)?fo:0;
     if(act>=0){
       const sc=SCENES[act];
       if(headH.textContent!==sc.h){headH.textContent=sc.h;headK.textContent=sc.k}
@@ -1233,6 +1243,18 @@ body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-fo
     else if(hiddenWhilePlaying){hiddenWhilePlaying=false;resumeT=setTimeout(resume,600)}
   });
 
+
+  // tour indicator: which scene you're on, and whether the tour is playing or paused
+  (function(){const el=$('tour'),st=$('tourStep'),ss=$('tourStat');let last='';
+    setInterval(()=>{
+      const on=tourVis>0.5&&!finished;el.style.opacity=on?1:0;if(!on)return;
+      const sc=SCENES[tourAct],name=sc.k.split('·')[1].trim();
+      const playing=mode==='play';
+      const key=tourAct+'|'+playing;if(key===last)return;last=key;
+      st.innerHTML='<b>'+String(tourAct+1).padStart(2,'0')+' / '+String(NS).padStart(2,'0')+'</b><span class="nm"> &middot; '+name+'</span>';
+      ss.innerHTML=playing?'Playing<span class="lg"> &middot; scroll to pause</span>':'Paused<span class="lg"> &middot; scroll down to continue</span>';
+      el.classList.toggle('paused',!playing);
+    },150);})();
   document.getElementById('skip').addEventListener('click',()=>{cancelGlide();clearTimeout(resumeT);mode='ended';finished=true;const a=document.getElementById('after');scrollTo(0,a.getBoundingClientRect().top+scrollY);});
   let lastW=0,lastH=0,rzT=0;
   const relayout=()=>{const w=stage.clientWidth,h=Math.min(stage.clientHeight,svhEl.offsetHeight||innerHeight);
