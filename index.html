@@ -1158,10 +1158,10 @@ body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-fo
   const STOPS=[0,...[0,1,2,3,4,5].map(i=>T.s0+T.sl*(i+0.38)),0.875,0.93,1];
   const DUR=[0,2800,5400,4200,5200,5000,5200,4600,4600,3200];   // ... dashboard + fan, closing line hold (~4.5s), frame closes + logo retypes   // ms per stretch: intro, problem, shift, website, apps, automation, dashboard + close (~36s)
   let mode='idle',playP=0,lastT=0,expectY=null,resumeT=null,glide=null,hiddenWhilePlaying=false,startLock=false,lastWheel=0,touchLock=false,lastAbs=0,decay=0,glideOut=false,guardUntil=0,touching=false,lastDir=1,lockT=null,ldrSet=false;
-  const RESUME=160;   // ms of stillness before the film carries on (going forward)
+  const RESUME=110;   // ms of stillness before the film carries on (going forward)
   const BACK=2400;    // after scrolling back up, give people time to look before it carries on
   let lastSrc='wheel';
-  const wait=()=>lastSrc==='touch'?650:RESUME;   // touch: let momentum scrolling settle first
+  const wait=()=>lastDir<0?350:(lastSrc==='touch'?110:RESUME);   // touch: resume as soon as momentum stops (scroll events go quiet); after scrolling back, a short beat to look
   const unlockSoon=()=>{clearTimeout(lockT);lockT=setTimeout(()=>{startLock=false;glideOut=false},420)};
   const travelPx=()=>travel;
   const curP=()=>clamp((scrollY-filmTop)/travel);
@@ -1174,7 +1174,7 @@ body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-fo
       const u=(((pc-T.s0)/T.sl)%1+1)%1, d=(u>=0.38&&u<0.94)?1.25:0.6;
       return base*0.964/d;}
     return 0}
-  let finished=false;
+  let finished=false,skipped=false;
   function startPlay(){playP=curP();lastT=0;mode='play';typed=NAME.length;guardUntil=performance.now()+250}
   function tickPlay(now){
     setTouchMode();
@@ -1186,7 +1186,8 @@ body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-fo
   function cancelGlide(){if(glide){cancelAnimationFrame(glide.raf);glide=null}}
   function takeControl(){
     cancelGlide();
-    if(mode==='idle'||mode==='ended')return;
+    if(mode==='idle')return;
+    if(mode==='ended'&&(skipped||!pinned()))return;   // a finished tour picks back up if they scroll back into it
     mode='user';clearTimeout(resumeT);resumeT=setTimeout(resume,wait());
   }
   function resume(){
@@ -1194,7 +1195,7 @@ body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-fo
     const pc=curP();
     if(!pinned()||pc>=0.999){mode=pc>=0.999?'ended':'user';return}
     if(pc<=0.0005){mode='idle';return}
-    if(lastDir<0||finished)return;   // scrolling back up, or the film already finished: the visitor is in control, never pull them forward
+    if(skipped)return;   // the visitor chose to skip the tour: never pull them back into it
     startPlay();
   }
   function glideTo(pt,dur){
@@ -1216,7 +1217,7 @@ body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-fo
     if(startLock){if(fresh&&gap>120)startLock=false;else{e.preventDefault();return}}   // the swipe that started the film just starts it
     if(glideOut){if(fresh)glideOut=false;else{e.preventDefault();return}}           // swallow inertia once the film has taken back over
     if(abs<0.5)return;
-    if(mode==='user'&&decay>=3&&pinned()&&lastDir>0&&!finished){   // fingers lifted: carry on immediately, swallowing the coast
+    if(mode==='user'&&decay>=3&&pinned()&&lastDir>0&&!skipped){   // fingers lifted: carry on immediately, swallowing the coast
       clearTimeout(resumeT);glideOut=true;unlockSoon();e.preventDefault();resume();return}
     onInput(e.deltaY>0?1:-1,'wheel');
     if(startLock)e.preventDefault();
@@ -1247,15 +1248,15 @@ body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-fo
   // tour indicator: which scene you're on, and whether the tour is playing or paused
   (function(){const el=$('tour'),st=$('tourStep'),ss=$('tourStat');let last='';
     setInterval(()=>{
-      const on=tourVis>0.5&&!finished;el.style.opacity=on?1:0;if(!on)return;
+      const on=tourVis>0.5&&!skipped;el.style.opacity=on?1:0;if(!on)return;
       const sc=SCENES[tourAct],name=sc.k.split('·')[1].trim();
       const playing=mode==='play';
       const key=tourAct+'|'+playing;if(key===last)return;last=key;
       st.innerHTML='<b>'+String(tourAct+1).padStart(2,'0')+' / '+String(NS).padStart(2,'0')+'</b><span class="nm"> &middot; '+name+'</span>';
-      ss.innerHTML=playing?'Playing<span class="lg"> &middot; scroll to pause</span>':'Paused<span class="lg"> &middot; scroll down to continue</span>';
+      ss.innerHTML=playing?'Playing<span class="lg"> &middot; scroll to pause</span>':'Paused<span class="lg"> &middot; let go to continue</span>';
       el.classList.toggle('paused',!playing);
-    },150);})();
-  document.getElementById('skip').addEventListener('click',()=>{cancelGlide();clearTimeout(resumeT);mode='ended';finished=true;const a=document.getElementById('after');scrollTo(0,a.getBoundingClientRect().top+scrollY);});
+    },50);})();
+  document.getElementById('skip').addEventListener('click',()=>{cancelGlide();clearTimeout(resumeT);mode='ended';finished=true;skipped=true;const a=document.getElementById('after');scrollTo(0,a.getBoundingClientRect().top+scrollY);});
   let lastW=0,lastH=0,rzT=0;
   const relayout=()=>{const w=stage.clientWidth,h=Math.min(stage.clientHeight,svhEl.offsetHeight||innerHeight);
     if(w===lastW&&Math.abs(h-lastH)<2){geom();return}
