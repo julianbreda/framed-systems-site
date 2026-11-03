@@ -209,7 +209,7 @@ body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-fo
 .rp-chip{font-family:var(--mono);font-size:10.5px;padding:4px 9px;border-radius:999px;background:rgba(61,124,255,.15);color:#8DB2FF;transition:all .3s}
 .rp-chip.ok{background:rgba(74,222,128,.12);color:#4ADE80}
 .rp-time{font-family:var(--mono);font-size:34px;letter-spacing:-.03em;color:#fff;font-variant-numeric:tabular-nums;line-height:1}
-.rp-wave{display:flex;align-items:center;gap:3px;height:30px}
+.rp-wave{display:none}
 .rp-wave i{flex:1;border-radius:2px;background:#2E4C8F;height:4px}
 .rp-tx{display:flex;flex-direction:column;gap:9px;font-size:12px;line-height:1.45}
 .rp-tx p{margin:0;color:#B3BDD1;opacity:0;transform:translateY(6px);transition:opacity .35s,transform .35s}
@@ -604,7 +604,7 @@ body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-fo
 
         <!-- 3 · automations -->
         <div class="win flow2" id="w3" aria-hidden="true">
-          <div class="chrome dark"><i></i><i></i><i></i><div class="url">Hartwell · Automations · After-hours call</div><span class="lbl lbl-d">Example</span></div>
+          <div class="chrome dark"><i></i><i></i><i></i><div class="url">Hartwell · Automations · After-hours text</div><span class="lbl lbl-d">Example</span></div>
           <div class="fl-body">
             <div class="canvas" id="canvas"><svg class="edges" id="edges"></svg></div>
             <aside class="runpanel">
@@ -612,13 +612,13 @@ body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-fo
               <div class="rp-time" id="rpTime">0:00</div>
               <div class="rp-wave" id="rpWave"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
               <div class="rp-tx" id="rpTx">
-                <p><b>AI FRONT DESK</b>Hartwell Mechanical, after-hours line. How can I help?</p>
-                <p class="cl"><b>CALLER</b>Our furnace just stopped and it's getting cold.</p>
-                <p><b>AI FRONT DESK</b>I can have Marco there tomorrow at 9:00. Does that work?</p>
-                <p class="cl"><b>CALLER</b>Perfect, thank you.</p>
+                <p class="cl"><b>CUSTOMER &middot; TEXT</b>Hi, our furnace just stopped and it's getting cold.</p>
+                <p><b>AI REPLY</b>Sorry to hear that, Daniela. We can have a technician there tomorrow at 9:00. Should I book it?</p>
+                <p class="cl"><b>CUSTOMER</b>Yes please, thank you.</p>
+                <p><b>AI REPLY</b>Done. You'll get a confirmation text shortly.</p>
               </div>
               <div class="rp-kv" id="rpKv">
-                <div>Caller<b>Daniela R.</b></div>
+                <div>Customer<b>Daniela R.</b></div>
                 <div>Issue<b>Furnace, no heat</b></div>
                 <div>Booked<b>Tue 9:00 AM</b></div>
                 <div>Quote<b>$486.00</b></div>
@@ -626,7 +626,7 @@ body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-fo
               </div>
             </aside>
           </div>
-          <div class="fl-foot"><span>Trigger: inbound call · 7 steps · <b>0 people involved</b></span><span id="flDone">Running</span></div>
+          <div class="fl-foot"><span>Trigger: inbound text · 7 steps · <b>1 approval by your team</b></span><span id="flDone">Running</span></div>
         </div>
 
         <!-- 4 · owner dashboard -->
@@ -772,7 +772,7 @@ body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-fo
     {cmd:'merge --into one-system',  k:'02 · The shift',   h:'What if it were one system, built exactly the way you work?'},
     {cmd:'open ldrservice.com',      k:'03 · Websites',         h:'A website that sells while you sleep.'},
     {cmd:'open app',                 k:'04 · Apps',        h:'Your customers want an app. Your team needs one.'},
-    {cmd:'run automations',          k:'05 · AI & automation', h:'The follow-up, the booking, the invoice. Done every time. By no one.'},
+    {cmd:'run automations',          k:'05 · AI & automation', h:'The follow-up, the booking, the invoice. Done every time, automatically.'},
     {cmd:'open dashboard',           k:'06 · Live data',   h:'Every number, live. Decide on data, not gut feel.'},
     {cmd:'status',                   k:'Framed Systems',   h:'Stop renting software built for everyone. Own the one built for you.'},
   ];
@@ -894,10 +894,10 @@ body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-fo
     star:'<path d="M12 3.5l2.6 5.3 5.8.8-4.2 4.1 1 5.8L12 16.8l-5.2 2.7 1-5.8-4.2-4.1 5.8-.8z"/>'
   };
   const FN=[
-    {t:'Call received',s:'7:04 PM · after hours',ic:'phone',at:.03,tm:'0:00',trig:1},
-    {t:'AI front desk',s:'Answered in 1 ring',ic:'spark',at:.14,tm:'0:01'},
+    {t:'Text received',s:'7:04 PM · after hours',ic:'chat',at:.03,tm:'0:00',trig:1},
+    {t:'AI reply',s:'Replied in 40 sec',ic:'spark',at:.14,tm:'0:01'},
     {t:'Job created',s:'#4821 · No heat',ic:'doc',at:.34,tm:'0:42'},
-    {t:'Technician booked',s:'Marco · Tue 9:00',ic:'cal',at:.46,tm:'0:44'},
+    {t:'Booking approved',s:'On-call team · Tue 9:00',ic:'cal',at:.46,tm:'0:44'},
     {t:'Confirmation texted',s:'Delivered · 7:05 PM',ic:'chat',at:.58,tm:'0:45'},
     {t:'Quote sent',s:'$486.00 · e-sign link',ic:'card',at:.70,tm:'1:08'},
     {t:'Review request',s:'After the job closes',ic:'star',at:.82,tm:'1:12'}
